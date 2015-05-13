@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PersonForm</class>
+ <widget class="QMainWindow" name="PersonForm">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>647</width>
+    <height>423</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Лицевые счета сотрудников</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QTableView" name="tablePersona">
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QTableView" name="tableSchet">
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>647</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Действия</string>
+    </property>
+    <addaction name="action_add_person"/>
+    <addaction name="action_del_person"/>
+    <addaction name="separator"/>
+    <addaction name="action_save_person"/>
+    <addaction name="separator"/>
+    <addaction name="action_add_schet"/>
+    <addaction name="action_del_schet"/>
+    <addaction name="separator"/>
+    <addaction name="action_save_schet"/>
+    <addaction name="separator"/>
+    <addaction name="action_exit"/>
+   </widget>
+   <addaction name="menu"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_add_person"/>
+   <addaction name="action_del_person"/>
+   <addaction name="action_save_person"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_add_schet"/>
+   <addaction name="action_del_schet"/>
+   <addaction name="action_save_schet"/>
+  </widget>
+  <action name="action_add_person">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/ico/add.png</normaloff>:/ico/add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Добавить сотрудника</string>
+   </property>
+  </action>
+  <action name="action_del_person">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/ico/delete.png</normaloff>:/ico/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Удалить сотрудника</string>
+   </property>
+  </action>
+  <action name="action_save_person">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/ico/save.png</normaloff>:/ico/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Сохранить всех сотрудников</string>
+   </property>
+  </action>
+  <action name="action_add_schet">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/ico/add_dop.png</normaloff>:/ico/add_dop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Добавить лицевой счет</string>
+   </property>
+  </action>
+  <action name="action_del_schet">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/ico/delete_dop.png</normaloff>:/ico/delete_dop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Удалить лицевой счет</string>
+   </property>
+  </action>
+  <action name="action_save_schet">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/ico/save.png</normaloff>:/ico/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Сохранить все лицевые счета</string>
+   </property>
+  </action>
+  <action name="action_exit">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

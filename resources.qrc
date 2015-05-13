@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ico/save.png</file>
+        <file>ico/add.png</file>
+        <file>ico/delete.png</file>
+        <file>ico/delete_dop.png</file>
+        <file>ico/add_dop.png</file>
+        <file>ico/import.png</file>
+        <file>ico/export.png</file>
+        <file>ico/new.png</file>
+    </qresource>
+</RCC>
