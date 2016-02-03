@@ -7,11 +7,13 @@
 #include <QSqlQuery>
 #include <QDate>
 #include <QTableWidgetItem>
+#include <QSettings>
 
 #include "bankform.h"
 #include "personform.h"
 #include "selectimportform.h"
 #include "insertactiveform.h"
+#include "minimalzpform.h"
 #include "aboutform.h"
 #include "parser.h"
 
@@ -59,6 +61,10 @@ private slots:
 
     void on_action_new_triggered();
 
+    void on_action_minimal_zp_triggered();
+
+    void on_action_del_all_archiv_triggered();
+
 private:
     Ui::MainForm *ui;
     BankForm* bank_form;
@@ -67,7 +73,8 @@ private:
     Parser* parser;
     int for_bank;
     int count_rec, count_rec_sel;
-    int summa, summa_sel;
+    long long int summa, summa_sel;
+    QSettings* setting;
 };
 
 #endif // MAINFORM_H

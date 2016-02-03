@@ -36,7 +36,7 @@
       </font>
      </property>
      <property name="text">
-      <string>ParserZP v1.0.2</string>
+      <string>ParserZP v1.0.4</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -51,7 +51,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Программа предназначена для хранения данных о лицевых счетах сотрудников и преобразования списка заработной платы в формат для БеларусБанка, БелАгроПромБанка</string>
+      <string>Программа предназначена для хранения данных о лицевых счетах сотрудников и преобразования списка заработной платы в формат для БеларусБанка, БелАгроПромБанка, ПриорБанка</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

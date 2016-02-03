@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     personform.cpp \
     selectimportform.cpp \
     aboutform.cpp \
-    insertactiveform.cpp
+    insertactiveform.cpp \
+    minimalzpform.cpp
 
 HEADERS  += mainform.h \
     parser.h \
@@ -27,7 +28,8 @@ HEADERS  += mainform.h \
     personform.h \
     selectimportform.h \
     aboutform.h \
-    insertactiveform.h
+    insertactiveform.h \
+    minimalzpform.h
 
 FORMS    += mainform.ui \
     bankform.ui \
@@ -35,7 +37,8 @@ FORMS    += mainform.ui \
     selectimportform.ui \
     aboutform.ui \
     insertactiveform.ui \
-    insertactiveform.ui
+    insertactiveform.ui \
+    minimalzpform.ui
 
 RESOURCES += \
     resources.qrc

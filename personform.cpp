@@ -108,3 +108,16 @@ void PersonForm::on_action_save_schet_triggered()
     }
     ui->tableSchet->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }
+
+void PersonForm::on_lineEdit_textChanged(const QString &arg1)
+{
+    if (ui->lineEdit->text().isEmpty())
+    {
+        persona_model->setFilter("");
+        persona_model->select();
+    }else
+    {
+        persona_model->setFilter("fio like '"+ui->lineEdit->text()+"%'");
+        persona_model->select();
+    }
+}

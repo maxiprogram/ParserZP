@@ -7,6 +7,8 @@ MainForm::MainForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setting=new QSettings("settings.ini",QSettings::IniFormat,this);
+
     bank_form = new BankForm(this);
     persona_form = new PersonForm(this);
     insert_form = new InsertActiveForm(this);
@@ -34,10 +36,12 @@ MainForm::MainForm(QWidget *parent) :
     ui->action_new->setEnabled(true);
 
     ui->action_del_archiv->setEnabled(false);
+    ui->action_del_all_archiv->setEnabled(false);
 }
 
 MainForm::~MainForm()
 {
+    delete setting;
     delete ui;
     delete parser;
     QSqlDatabase::database().close();
@@ -185,7 +189,7 @@ void MainForm::on_action_import_triggered()
     {
         case 1:
         {
-            query_string = "SELECT persona.fio, schet.kod, schet.schet, schet.id_bank  FROM persona "
+            query_string = "SELECT persona.fio, schet.kod, schet.schet, schet.id_bank, persona.id  FROM persona "
                        "INNER JOIN schet on schet.id_persona=persona.id "
                        "WHERE schet.id_bank=(SELECT id FROM bank WHERE name='БеларусБанк') and persona.fio=";
             ui->label_bank->setText("Формирование списка для: БеларусБанк");
@@ -193,10 +197,34 @@ void MainForm::on_action_import_triggered()
         }
         case 2:
         {
-            query_string = "SELECT persona.fio, schet.kod, schet.schet, schet.id_bank  FROM persona "
+            query_string = "SELECT persona.fio, schet.kod, schet.schet, schet.id_bank, persona.id  FROM persona "
                        "INNER JOIN schet on schet.id_persona=persona.id "
                        "WHERE schet.id_bank=(SELECT id FROM bank WHERE name='БелАгроПромБанк') and persona.fio=";
             ui->label_bank->setText("Формирование списка для: БелАгроПромБанк");
+            break;
+        }
+        case 3:
+        {
+            query_string = "SELECT persona.fio, schet.kod, schet.schet, schet.id_bank, persona.id  FROM persona "
+                       "INNER JOIN schet on schet.id_persona=persona.id "
+                       "WHERE schet.id_bank=(SELECT id FROM bank WHERE name='ПриорБанк') and persona.fio=";
+            ui->label_bank->setText("Формирование списка для: ПриорБанк");
+            break;
+        }
+        case 4:
+        {
+            query_string = "SELECT persona.fio, schet.kod, schet.schet, schet.id_bank, persona.id  FROM persona "
+                       "INNER JOIN schet on schet.id_persona=persona.id "
+                       "WHERE schet.id_bank=(SELECT id FROM bank WHERE name='БеларусБанк') and persona.fio=";
+            ui->label_bank->setText("Формирование списка для: Минимальная ЗП БеларусБанк");
+            break;
+        }
+        case 5:
+        {
+            query_string = "SELECT persona.fio, schet.kod, schet.schet, schet.id_bank, persona.id  FROM persona "
+                       "INNER JOIN schet on schet.id_persona=persona.id "
+                       "WHERE schet.id_bank=(SELECT id FROM bank WHERE name='БелАгроПромБанк') and persona.fio=";
+            ui->label_bank->setText("Формирование списка для: Минимальная ЗП БелАгроПромБанк");
             break;
         }
     }
@@ -208,6 +236,7 @@ void MainForm::on_action_import_triggered()
     QList<DataRecord> list = parser->GetList();
     for (int i=0; i<list.size(); i++)
     {
+        int summa_oplat = 0;
         //qDebug()<<"SQL:"<<query_string+"'"+list.at(i).fio+"';";
         query.clear();
         if (!query.exec(query_string+"'"+list.at(i).fio+"';"))
@@ -219,16 +248,36 @@ void MainForm::on_action_import_triggered()
         query.first();
         if (query.isValid())
         {
+            int id_persona = query.value(4).toInt();
             QSqlQuery dop_query(QSqlDatabase::database());
-            dop_query.exec("SELECT id FROM schet WHERE kod='"+query.value(1).toString()+"' and schet='"+query.value(2).toString()+"';");
+            dop_query.exec("SELECT id, id_bank FROM schet WHERE id_persona="+QString::number(id_persona)+" ORDER BY id_bank ASC;");
             dop_query.first();
-            int id_schet = dop_query.value(0).toInt();
-            dop_query.clear();
-            bool flag = false;
-            dop_query.exec("SELECT id FROM archiv_data WHERE id_schet="+QString::number(id_schet)+";");
-            dop_query.first();
+            QVector<int> id_schet;
             if (dop_query.isValid())
-                flag = true;
+            {
+                do
+                {
+                    id_schet.append(dop_query.value(0).toInt());
+                }while(dop_query.next());
+            }
+            dop_query.clear();
+
+            int flag = 0;
+            for(int i=0; i<id_schet.size(); i++)
+            {
+                dop_query.exec("SELECT id, summa FROM archiv_data WHERE id_schet="+QString::number(id_schet.at(i))+";");
+                dop_query.first();
+                if (dop_query.isValid())
+                {
+                    flag = i+1;
+                    do
+                    {
+                        summa_oplat+=dop_query.value(1).toInt();
+                    }while(dop_query.next());
+                }
+                dop_query.clear();
+            }
+
 
             int row_i = ui->tableActive->rowCount();
             ui->tableActive->insertRow(row_i);
@@ -236,28 +285,58 @@ void MainForm::on_action_import_triggered()
             ui->tableActive->setItem(row_i, 0, new QTableWidgetItem());
             ui->tableActive->item(row_i, 0)->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
             ui->tableActive->item(row_i, 0)->setCheckState(Qt::Unchecked);
-            if (flag)
+            if (flag==1)
                 ui->tableActive->item(row_i, 0)->setBackground(QColor(Qt::red));
+            if (flag==2)
+                ui->tableActive->item(row_i, 0)->setBackground(QColor(Qt::green));
+            if (flag==3)
+                ui->tableActive->item(row_i, 0)->setBackground(QColor(Qt::yellow));
 
             ui->tableActive->setItem(row_i, 1, new QTableWidgetItem(query.value(0).toString()));
             ui->tableActive->item(row_i, 1)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-            if (flag)
+            if (flag==1)
                 ui->tableActive->item(row_i, 1)->setBackground(QColor(Qt::red));
+            if (flag==2)
+                ui->tableActive->item(row_i, 1)->setBackground(QColor(Qt::green));
+            if (flag==3)
+                ui->tableActive->item(row_i, 1)->setBackground(QColor(Qt::yellow));
 
             ui->tableActive->setItem(row_i, 2, new QTableWidgetItem(query.value(1).toString()));
             ui->tableActive->item(row_i, 2)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-            if (flag)
+            if (flag==1)
                 ui->tableActive->item(row_i, 2)->setBackground(QColor(Qt::red));
+            if (flag==2)
+                ui->tableActive->item(row_i, 2)->setBackground(QColor(Qt::green));
+            if (flag==3)
+                ui->tableActive->item(row_i, 2)->setBackground(QColor(Qt::yellow));
 
             ui->tableActive->setItem(row_i, 3, new QTableWidgetItem(query.value(2).toString()));
             ui->tableActive->item(row_i, 3)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-            if (flag)
+            if (flag==1)
                 ui->tableActive->item(row_i, 3)->setBackground(QColor(Qt::red));
+            if (flag==2)
+                ui->tableActive->item(row_i, 3)->setBackground(QColor(Qt::green));
+            if (flag==3)
+                ui->tableActive->item(row_i, 3)->setBackground(QColor(Qt::yellow));
 
-            ui->tableActive->setItem(row_i, 4, new QTableWidgetItem(list.at(i).summa));
-            if (flag)
-                ui->tableActive->item(row_i, 4)->setBackground(QColor(Qt::red));
-            summa+=list.at(i).summa.toInt();
+            if (for_bank==4 || for_bank==5)
+            {
+                ui->tableActive->setItem(row_i, 4, new QTableWidgetItem(QString::number(setting->value("min_zp").toInt())));
+            }else
+            {
+                ui->tableActive->setItem(row_i, 4, new QTableWidgetItem(QString::number(list.at(i).summa.toInt()-summa_oplat)));
+                if (flag==1)
+                    ui->tableActive->item(row_i, 4)->setBackground(QColor(Qt::red));
+                if (flag==2)
+                    ui->tableActive->item(row_i, 4)->setBackground(QColor(Qt::green));
+                if (flag==3)
+                    ui->tableActive->item(row_i, 4)->setBackground(QColor(Qt::yellow));
+            }
+
+            if (for_bank==4 || for_bank==5)
+                summa+=setting->value("min_zp").toInt();
+            else
+                summa+=list.at(i).summa.toInt()-summa_oplat;
             count_rec++;
         }
 
@@ -285,6 +364,21 @@ void MainForm::on_action_export_triggered()
         case 2:
         {
             str = "БелАгроПромБанк.txt";
+            break;
+        }
+        case 3:
+        {
+            str = "ПриорБанк.txt";
+            break;
+        }
+        case 4:
+        {
+            str = "МинЗПБеларусБанк.txt";
+            break;
+        }
+        case 5:
+        {
+            str = "МинЗПБелАгроПромБанк.txt";
             break;
         }
     }
@@ -413,6 +507,172 @@ void MainForm::on_action_export_triggered()
                 qDebug()<<query.lastError().text();
             break;
         }
+        case 3:
+        {
+            QString query_string = "INSERT INTO archiv ([date], name, summa) "
+                    "VALUES ('"+QDate::currentDate().toString("dd.MM.yyyy")+"', 'ПриорБанк список на зачисление', 0);";
+            //qDebug()<<query_string;
+            QSqlQuery query(QSqlDatabase::database());
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+            query_string = "SELECT TOP 1 id FROM archiv ORDER BY id DESC";
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+            query.first();
+            int id_archiv = query.value(0).toInt();
+            qDebug()<<id_archiv;
+
+            for (int i=0; i<ui->tableActive->rowCount(); i++)
+            {
+                if (ui->tableActive->item(i, 0)->checkState()==Qt::Checked)
+                {
+                    stream<<ui->tableActive->item(i, 2)->text()<<","
+                          <<ui->tableActive->item(i, 3)->text()<<","
+                          <<ui->tableActive->item(i, 1)->text()<<","
+                          <<ui->tableActive->item(i, 4)->text()
+                          <<"\r\n";
+                    count_record++;
+                    summa+=ui->tableActive->item(i, 4)->text().toInt();
+
+                    query_string = "SELECT id FROM schet WHERE kod='"+
+                            ui->tableActive->item(i, 2)->text()+
+                            "' AND schet='"+ui->tableActive->item(i, 3)->text()+"';";
+                    //qDebug()<<query_string;
+                    query.clear();
+                    if (!query.exec(query_string))
+                        qDebug()<<query.lastError().text();
+                    query.first();
+                    int id_schet = query.value(0).toInt();
+                    query.clear();
+                    query_string = "INSERT INTO archiv_data (id_archiv, id_schet, summa) "
+                            "VALUES ("+QString::number(id_archiv)+", "+QString::number(id_schet)+", "+ui->tableActive->item(i, 4)->text()+");";
+                    qDebug()<<query_string;
+                    if (!query.exec(query_string))
+                        qDebug()<<query.lastError().text();
+
+                }
+            }
+
+            query.clear();
+            query_string = "UPDATE archiv "
+                    "SET summa="+QString::number(summa)+
+                    " WHERE id="+QString::number(id_archiv)+";";
+            qDebug()<<query_string;
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+            break;
+        }
+        case 4:
+        {
+            QString query_string = "INSERT INTO archiv ([date], name, summa) "
+                    "VALUES ('"+QDate::currentDate().toString("dd.MM.yyyy")+"', 'БеларусБанк список минимальная заработная плата', 0);";
+            //qDebug()<<query_string;
+            QSqlQuery query(QSqlDatabase::database());
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+            query_string = "SELECT TOP 1 id FROM archiv ORDER BY id DESC";
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+            query.first();
+            int id_archiv = query.value(0).toInt();
+            qDebug()<<id_archiv;
+
+            for (int i=0; i<ui->tableActive->rowCount(); i++)
+            {
+                if (ui->tableActive->item(i, 0)->checkState()==Qt::Checked)
+                {
+                    stream<<ui->tableActive->item(i, 2)->text()<<" "
+                          <<ui->tableActive->item(i, 3)->text()<<" "
+                          <<ui->tableActive->item(i, 4)->text()<<" "
+                          <<ui->tableActive->item(i, 1)->text()
+                          <<"\r\n";
+                    count_record++;
+                    summa+=ui->tableActive->item(i, 4)->text().toInt();
+
+                    query_string = "SELECT id FROM schet WHERE kod='"+
+                            ui->tableActive->item(i, 2)->text()+
+                            "' AND schet='"+ui->tableActive->item(i, 3)->text()+"';";
+                    //qDebug()<<query_string;
+                    query.clear();
+                    if (!query.exec(query_string))
+                        qDebug()<<query.lastError().text();
+                    query.first();
+                    int id_schet = query.value(0).toInt();
+                    query.clear();
+                    query_string = "INSERT INTO archiv_data (id_archiv, id_schet, summa) "
+                            "VALUES ("+QString::number(id_archiv)+", "+QString::number(id_schet)+", "+ui->tableActive->item(i, 4)->text()+");";
+                    qDebug()<<query_string;
+                    if (!query.exec(query_string))
+                        qDebug()<<query.lastError().text();
+
+                }
+            }
+
+            query.clear();
+            query_string = "UPDATE archiv "
+                    "SET summa="+QString::number(summa)+
+                    " WHERE id="+QString::number(id_archiv)+";";
+            qDebug()<<query_string;
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+
+            break;
+        }
+        case 5:
+        {
+            QString query_string = "INSERT INTO archiv ([date], name, summa) "
+                    "VALUES ('"+QDate::currentDate().toString("dd.MM.yyyy")+"', 'БелАгроПромБанк список минимальная заработная плата', 0);";
+            //qDebug()<<query_string;
+            QSqlQuery query(QSqlDatabase::database());
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+            query_string = "SELECT TOP 1 id FROM archiv ORDER BY id DESC";
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+            query.first();
+            int id_archiv = query.value(0).toInt();
+            qDebug()<<id_archiv;
+
+            for (int i=0; i<ui->tableActive->rowCount(); i++)
+            {
+                if (ui->tableActive->item(i, 0)->checkState()==Qt::Checked)
+                {
+                    stream<<ui->tableActive->item(i, 2)->text()<<","
+                          <<ui->tableActive->item(i, 3)->text()<<","
+                          <<ui->tableActive->item(i, 1)->text()<<","
+                          <<ui->tableActive->item(i, 4)->text()
+                          <<"\r\n";
+                    count_record++;
+                    summa+=ui->tableActive->item(i, 4)->text().toInt();
+
+                    query_string = "SELECT id FROM schet WHERE kod='"+
+                            ui->tableActive->item(i, 2)->text()+
+                            "' AND schet='"+ui->tableActive->item(i, 3)->text()+"';";
+                    //qDebug()<<query_string;
+                    query.clear();
+                    if (!query.exec(query_string))
+                        qDebug()<<query.lastError().text();
+                    query.first();
+                    int id_schet = query.value(0).toInt();
+                    query.clear();
+                    query_string = "INSERT INTO archiv_data (id_archiv, id_schet, summa) "
+                            "VALUES ("+QString::number(id_archiv)+", "+QString::number(id_schet)+", "+ui->tableActive->item(i, 4)->text()+");";
+                    qDebug()<<query_string;
+                    if (!query.exec(query_string))
+                        qDebug()<<query.lastError().text();
+
+                }
+            }
+
+            query.clear();
+            query_string = "UPDATE archiv "
+                    "SET summa="+QString::number(summa)+
+                    " WHERE id="+QString::number(id_archiv)+";";
+            qDebug()<<query_string;
+            if (!query.exec(query_string))
+                qDebug()<<query.lastError().text();
+            break;
+        }
     }
 
     QMessageBox::information(this, "Экспорт списка", "Список экспортирован\r\n"
@@ -458,6 +718,7 @@ void MainForm::on_tabWidget_currentChanged(int index)
         ui->action_new->setEnabled(true);
 
         ui->action_del_archiv->setEnabled(false);
+        ui->action_del_all_archiv->setEnabled(false);
 
         break;
     }
@@ -470,6 +731,7 @@ void MainForm::on_tabWidget_currentChanged(int index)
         ui->action_new->setEnabled(false);
 
         ui->action_del_archiv->setEnabled(true);
+        ui->action_del_all_archiv->setEnabled(true);
         PrintArchiv();
         break;
     }
@@ -503,7 +765,7 @@ void MainForm::on_action_del_archiv_triggered()
     id = ui->tableArchiv->item(item->row(), 0)->text();
     if (id!="" && id.toInt()!=0)
     {
-        if (QMessageBox::question(this, "Удаление записи", "Вы уверены что ходите удалить запись?")==QMessageBox::Yes)
+        if (QMessageBox::question(this, "Удаление записи", "Вы уверены что хотите удалить запись?")==QMessageBox::Yes)
         {
             QString query_string = "DELETE FROM archiv WHERE id="+id+";";
             QSqlQuery query(QSqlDatabase::database());
@@ -604,4 +866,30 @@ void MainForm::on_action_new_triggered()
 
     count_rec = count_rec_sel = summa = summa_sel = 0;
     ui->tableActive->setRowCount(0);
+}
+
+void MainForm::on_action_minimal_zp_triggered()
+{
+    MinimalZPForm f;
+    f.min_zp = setting->value("min_zp").toInt();
+    int flag = f.exec();
+    if (flag!=-1)
+        setting->setValue("min_zp", f.min_zp);
+}
+
+void MainForm::on_action_del_all_archiv_triggered()
+{
+
+    if (QMessageBox::question(this, "Удаление всех записей", "Вы уверены что хотите удалить все записи?")==QMessageBox::Yes)
+    {
+        QString query_string = "DELETE FROM archiv;";
+        QSqlQuery query(QSqlDatabase::database());
+        if (!query.exec(query_string))
+        {
+            QMessageBox::warning(this, "Ошибка запроса", query.lastError().text());
+            return;
+        }
+        PrintArchiv();
+        ui->tableArchivData->setRowCount(0);
+    }
 }

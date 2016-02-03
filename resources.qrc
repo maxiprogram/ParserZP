@@ -8,5 +8,6 @@
         <file>ico/import.png</file>
         <file>ico/export.png</file>
         <file>ico/new.png</file>
+        <file>ico/cross.png</file>
     </qresource>
 </RCC>

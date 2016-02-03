@@ -39,6 +39,8 @@ private slots:
 
     void on_action_save_schet_triggered();
 
+    void on_lineEdit_textChanged(const QString &arg1);
+
 private:
     Ui::PersonForm *ui;
     QSqlTableModel* persona_model;
