@@ -16,7 +16,7 @@ public:
     explicit MinimalZPForm(QWidget *parent = 0);
     ~MinimalZPForm();
     void showEvent(QShowEvent *event);
-    int min_zp;
+    double min_zp;
 
 private slots:
     void on_pushButton_2_clicked();

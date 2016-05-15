@@ -236,7 +236,7 @@ void MainForm::on_action_import_triggered()
     QList<DataRecord> list = parser->GetList();
     for (int i=0; i<list.size(); i++)
     {
-        int summa_oplat = 0;
+        double summa_oplat = 0;
         //qDebug()<<"SQL:"<<query_string+"'"+list.at(i).fio+"';";
         query.clear();
         if (!query.exec(query_string+"'"+list.at(i).fio+"';"))
@@ -272,7 +272,7 @@ void MainForm::on_action_import_triggered()
                     flag = i+1;
                     do
                     {
-                        summa_oplat+=dop_query.value(1).toInt();
+                        summa_oplat+=dop_query.value(1).toDouble();
                     }while(dop_query.next());
                 }
                 dop_query.clear();
@@ -321,10 +321,10 @@ void MainForm::on_action_import_triggered()
 
             if (for_bank==4 || for_bank==5)
             {
-                ui->tableActive->setItem(row_i, 4, new QTableWidgetItem(QString::number(setting->value("min_zp").toInt())));
+                ui->tableActive->setItem(row_i, 4, new QTableWidgetItem(QString::number(setting->value("min_zp").toDouble(), 'f', 2)));
             }else
             {
-                ui->tableActive->setItem(row_i, 4, new QTableWidgetItem(QString::number(list.at(i).summa.toInt()-summa_oplat)));
+                ui->tableActive->setItem(row_i, 4, new QTableWidgetItem(QString::number(list.at(i).summa.toDouble()-summa_oplat, 'f', 2)));
                 if (flag==1)
                     ui->tableActive->item(row_i, 4)->setBackground(QColor(Qt::red));
                 if (flag==2)
@@ -334,16 +334,16 @@ void MainForm::on_action_import_triggered()
             }
 
             if (for_bank==4 || for_bank==5)
-                summa+=setting->value("min_zp").toInt();
+                summa+=setting->value("min_zp").toDouble();
             else
-                summa+=list.at(i).summa.toInt()-summa_oplat;
+                summa+=list.at(i).summa.toDouble()-summa_oplat;
             count_rec++;
         }
 
     }
     ui->tableActive->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
     ui->label_count->setText("Всего записей: "+QString::number(count_rec_sel)+" из "+QString::number(count_rec));
-    ui->label_summa->setText("Всего сумма: "+QString::number(summa_sel)+" из "+QString::number(summa));
+    ui->label_summa->setText("Всего сумма: "+QString::number(summa_sel, 'f', 2)+" из "+QString::number(summa, 'f', 2));
 }
 
 void MainForm::on_action_export_triggered()
@@ -393,7 +393,7 @@ void MainForm::on_action_export_triggered()
     }
     QTextStream stream(&f);
     int count_record = 0;
-    int summa = 0;
+    double summa = 0;
     switch(for_bank)
     {
         case 1:
@@ -421,7 +421,7 @@ void MainForm::on_action_export_triggered()
                           <<ui->tableActive->item(i, 1)->text()
                           <<"\r\n";
                     count_record++;
-                    summa+=ui->tableActive->item(i, 4)->text().toInt();
+                    summa+=ui->tableActive->item(i, 4)->text().toDouble();
 
                     query_string = "SELECT id FROM schet WHERE kod='"+
                             ui->tableActive->item(i, 2)->text()+
@@ -444,7 +444,7 @@ void MainForm::on_action_export_triggered()
 
             query.clear();
             query_string = "UPDATE archiv "
-                    "SET summa="+QString::number(summa)+
+                    "SET summa="+QString::number(summa, 'f', 2)+
                     " WHERE id="+QString::number(id_archiv)+";";
             qDebug()<<query_string;
             if (!query.exec(query_string))
@@ -477,7 +477,7 @@ void MainForm::on_action_export_triggered()
                           <<ui->tableActive->item(i, 4)->text()
                           <<"\r\n";
                     count_record++;
-                    summa+=ui->tableActive->item(i, 4)->text().toInt();
+                    summa+=ui->tableActive->item(i, 4)->text().toDouble();
 
                     query_string = "SELECT id FROM schet WHERE kod='"+
                             ui->tableActive->item(i, 2)->text()+
@@ -500,7 +500,7 @@ void MainForm::on_action_export_triggered()
 
             query.clear();
             query_string = "UPDATE archiv "
-                    "SET summa="+QString::number(summa)+
+                    "SET summa="+QString::number(summa, 'f', 2)+
                     " WHERE id="+QString::number(id_archiv)+";";
             qDebug()<<query_string;
             if (!query.exec(query_string))
@@ -532,7 +532,7 @@ void MainForm::on_action_export_triggered()
                           <<ui->tableActive->item(i, 4)->text()
                           <<"\r\n";
                     count_record++;
-                    summa+=ui->tableActive->item(i, 4)->text().toInt();
+                    summa+=ui->tableActive->item(i, 4)->text().toDouble();
 
                     query_string = "SELECT id FROM schet WHERE kod='"+
                             ui->tableActive->item(i, 2)->text()+
@@ -555,7 +555,7 @@ void MainForm::on_action_export_triggered()
 
             query.clear();
             query_string = "UPDATE archiv "
-                    "SET summa="+QString::number(summa)+
+                    "SET summa="+QString::number(summa, 'f', 2)+
                     " WHERE id="+QString::number(id_archiv)+";";
             qDebug()<<query_string;
             if (!query.exec(query_string))
@@ -587,7 +587,7 @@ void MainForm::on_action_export_triggered()
                           <<ui->tableActive->item(i, 1)->text()
                           <<"\r\n";
                     count_record++;
-                    summa+=ui->tableActive->item(i, 4)->text().toInt();
+                    summa+=ui->tableActive->item(i, 4)->text().toDouble();
 
                     query_string = "SELECT id FROM schet WHERE kod='"+
                             ui->tableActive->item(i, 2)->text()+
@@ -610,7 +610,7 @@ void MainForm::on_action_export_triggered()
 
             query.clear();
             query_string = "UPDATE archiv "
-                    "SET summa="+QString::number(summa)+
+                    "SET summa="+QString::number(summa, 'f', 2)+
                     " WHERE id="+QString::number(id_archiv)+";";
             qDebug()<<query_string;
             if (!query.exec(query_string))
@@ -643,7 +643,7 @@ void MainForm::on_action_export_triggered()
                           <<ui->tableActive->item(i, 4)->text()
                           <<"\r\n";
                     count_record++;
-                    summa+=ui->tableActive->item(i, 4)->text().toInt();
+                    summa+=ui->tableActive->item(i, 4)->text().toDouble();
 
                     query_string = "SELECT id FROM schet WHERE kod='"+
                             ui->tableActive->item(i, 2)->text()+
@@ -666,7 +666,7 @@ void MainForm::on_action_export_triggered()
 
             query.clear();
             query_string = "UPDATE archiv "
-                    "SET summa="+QString::number(summa)+
+                    "SET summa="+QString::number(summa, 'f', 2)+
                     " WHERE id="+QString::number(id_archiv)+";";
             qDebug()<<query_string;
             if (!query.exec(query_string))
@@ -677,7 +677,7 @@ void MainForm::on_action_export_triggered()
 
     QMessageBox::information(this, "Экспорт списка", "Список экспортирован\r\n"
                              "Количество записей: "+QString::number(count_record)+"\r\n"
-                             "Общая сумма: "+QString::number(summa));
+                             "Общая сумма: "+QString::number(summa, 'f', 2));
     f.close();
 }
 
@@ -689,14 +689,14 @@ void MainForm::on_tableActive_clicked(const QModelIndex &index)
     {
         if (ui->tableActive->item(i, 0)->checkState()==Qt::Checked)
         {
-            summa_sel+=ui->tableActive->item(i, 4)->text().toInt();
+            summa_sel+=ui->tableActive->item(i, 4)->text().toDouble();
             count_rec_sel++;
         }
         count_rec++;
-        summa+=ui->tableActive->item(i, 4)->text().toInt();
+        summa+=ui->tableActive->item(i, 4)->text().toDouble();
     }
     ui->label_count->setText("Всего записей: "+QString::number(count_rec_sel)+" из "+QString::number(count_rec));
-    ui->label_summa->setText("Всего сумма: "+QString::number(summa_sel)+" из "+QString::number(summa));
+    ui->label_summa->setText("Всего сумма: "+QString::number(summa_sel, 'f', 2)+" из "+QString::number(summa, 'f', 2));
 }
 
 void MainForm::on_action_triggered()
@@ -871,7 +871,7 @@ void MainForm::on_action_new_triggered()
 void MainForm::on_action_minimal_zp_triggered()
 {
     MinimalZPForm f;
-    f.min_zp = setting->value("min_zp").toInt();
+    f.min_zp = setting->value("min_zp").toDouble();
     int flag = f.exec();
     if (flag!=-1)
         setting->setValue("min_zp", f.min_zp);

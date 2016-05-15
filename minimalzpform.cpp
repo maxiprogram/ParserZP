@@ -21,7 +21,7 @@ void MinimalZPForm::on_pushButton_2_clicked()
 void MinimalZPForm::on_pushButton_clicked()
 {
     bool flag = false;
-    this->min_zp = ui->lineEdit->text().toInt(&flag);
+    this->min_zp = ui->lineEdit->text().toDouble(&flag);
     if (flag==false)
         QMessageBox::warning(this, "Ошибка", "Невозможно преобразовать в число!");
     else

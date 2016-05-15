@@ -73,7 +73,7 @@ private:
     Parser* parser;
     int for_bank;
     int count_rec, count_rec_sel;
-    long long int summa, summa_sel;
+    double summa, summa_sel;
     QSettings* setting;
 };
 

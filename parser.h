@@ -20,10 +20,10 @@ public:
     Parser();
     bool Load(QString filename);
     QList<DataRecord> GetList();
-    uint GetSumma();
+    double GetSumma();
 private:
     QList<DataRecord> list;
-    uint summa;
+    double summa;
 };
 
 #endif // PARSER_H

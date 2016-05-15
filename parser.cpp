@@ -28,7 +28,7 @@ bool Parser::Load(QString filename)
                 tmp_str = in_text.readLine();
                 tmp_data.summa = tmp_str.right(tmp_str.size()-3);
                 list.append(tmp_data);
-                summa += tmp_data.summa.toUInt();
+                summa += tmp_data.summa.toDouble();
                 //qDebug()<<tmp_data.fio<<tmp_data.summa;
             }
         }
@@ -43,7 +43,7 @@ QList<DataRecord> Parser::GetList()
     return list;
 }
 
-uint Parser::GetSumma()
+double Parser::GetSumma()
 {
     return summa;
 }

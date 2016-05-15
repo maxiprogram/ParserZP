@@ -60,6 +60,13 @@ void InsertActiveForm::on_pushButton_2_clicked()
 
 void InsertActiveForm::on_pushButton_clicked()
 {
+    bool flag = false;
+    ui->lineEdit->text().toDouble(&flag);
+    if (flag==false)
+    {
+        QMessageBox::warning(this, "Ошибка", "Невозможно преобразовать cумму в число!");
+        return;
+    }
     emit ADD_RECORD(ui->comboBox->currentData().toString(), ui->comboBox_2->currentData().toString(), ui->lineEdit->text());
     this->close();
 }
