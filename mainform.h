@@ -65,6 +65,8 @@ private slots:
 
     void on_action_del_all_archiv_triggered();
 
+    void on_lineEdit_search_textChanged(const QString &arg1);
+
 private:
     Ui::MainForm *ui;
     BankForm* bank_form;

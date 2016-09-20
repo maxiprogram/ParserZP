@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ParserZP 1.0.5</string>
+   <string>ParserZP 1.0.6</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -37,6 +37,20 @@
         <string>Активный список</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Поиск:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_search"/>
+          </item>
+         </layout>
+        </item>
         <item>
          <widget class="QTableWidget" name="tableActive">
           <property name="sizeAdjustPolicy">

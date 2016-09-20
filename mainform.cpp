@@ -893,3 +893,21 @@ void MainForm::on_action_del_all_archiv_triggered()
         ui->tableArchivData->setRowCount(0);
     }
 }
+
+void MainForm::on_lineEdit_search_textChanged(const QString &arg1)
+{
+    if (!ui->lineEdit_search->text().isEmpty())
+    {
+        QString search_text = ui->lineEdit_search->text();
+        for(int i=0; i<ui->tableActive->rowCount(); i++)
+        {
+            //qDebug()<<ui->tableActive->item(i, 1)->text();
+            if(ui->tableActive->item(i, 1)->text().indexOf(search_text, 0, Qt::CaseInsensitive)!=-1)
+            {
+                //qDebug()<<"Yes:"<<i;
+                ui->tableActive->selectRow(i);
+                break;
+            }
+        }
+    }
+}
