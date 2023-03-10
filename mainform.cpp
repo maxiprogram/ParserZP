@@ -411,13 +411,47 @@ void MainForm::on_action_export_triggered()
             int id_archiv = query.value(0).toInt();
             qDebug()<<id_archiv;
 
+            QString filename_70 = filename;
+            QString filename_30 = filename;
+            int index = filename.lastIndexOf(".txt");
+            filename_70.insert(index, "_70");
+            filename_30.insert(index, "_30");
+            qDebug()<<filename<<filename_70<<filename_30;
+
+            QFile f_70(filename_70);
+            if (!f_70.open(QIODevice::WriteOnly))
+            {
+                QMessageBox::information(this, "Экспорт списка", "Не удаеться создать файл 70%!");
+            }
+            QFile f_30(filename_30);
+            if (!f_30.open(QIODevice::WriteOnly))
+            {
+                QMessageBox::information(this, "Экспорт списка", "Не удаеться создать файл 30%!");
+            }
+            QTextStream stream_70(&f_70);
+            QTextStream stream_30(&f_30);
+
             for (int i=0; i<ui->tableActive->rowCount(); i++)
             {
                 if (ui->tableActive->item(i, 0)->checkState()==Qt::Checked)
                 {
+                    double summa_person = ui->tableActive->item(i, 4)->text().toDouble();
+                    double summa_person_70 = summa_person * 0.7; //70%
+                    double summa_person_30 = summa_person - summa_person_70; //30%
+
                     stream<<ui->tableActive->item(i, 2)->text()<<" "
                           <<ui->tableActive->item(i, 3)->text()<<" "
                           <<ui->tableActive->item(i, 4)->text()<<" "
+                          <<ui->tableActive->item(i, 1)->text()
+                          <<"\r\n";
+                    stream_70<<ui->tableActive->item(i, 2)->text()<<" "
+                          <<ui->tableActive->item(i, 3)->text()<<" "
+                          <<QString::number(summa_person_70, 'f', 2)<<" "
+                          <<ui->tableActive->item(i, 1)->text()
+                          <<"\r\n";
+                    stream_30<<ui->tableActive->item(i, 2)->text()<<" "
+                          <<ui->tableActive->item(i, 3)->text()<<" "
+                          <<QString::number(summa_person_30, 'f', 2)<<" "
                           <<ui->tableActive->item(i, 1)->text()
                           <<"\r\n";
                     count_record++;
@@ -441,6 +475,8 @@ void MainForm::on_action_export_triggered()
 
                 }
             }
+            f_70.close();
+            f_30.close();
 
             query.clear();
             query_string = "UPDATE archiv "
@@ -467,14 +503,48 @@ void MainForm::on_action_export_triggered()
             int id_archiv = query.value(0).toInt();
             qDebug()<<id_archiv;
 
+            QString filename_70 = filename;
+            QString filename_30 = filename;
+            int index = filename.lastIndexOf(".txt");
+            filename_70.insert(index, "_70");
+            filename_30.insert(index, "_30");
+            qDebug()<<filename<<filename_70<<filename_30;
+
+            QFile f_70(filename_70);
+            if (!f_70.open(QIODevice::WriteOnly))
+            {
+                QMessageBox::information(this, "Экспорт списка", "Не удаеться создать файл 70%!");
+            }
+            QFile f_30(filename_30);
+            if (!f_30.open(QIODevice::WriteOnly))
+            {
+                QMessageBox::information(this, "Экспорт списка", "Не удаеться создать файл 30%!");
+            }
+            QTextStream stream_70(&f_70);
+            QTextStream stream_30(&f_30);
+
             for (int i=0; i<ui->tableActive->rowCount(); i++)
             {
                 if (ui->tableActive->item(i, 0)->checkState()==Qt::Checked)
                 {
+                    double summa_person = ui->tableActive->item(i, 4)->text().toDouble();
+                    double summa_person_70 = summa_person * 0.7; //70%
+                    double summa_person_30 = summa_person - summa_person_70; //30%
+
                     stream<<ui->tableActive->item(i, 2)->text()<<","
                           <<ui->tableActive->item(i, 3)->text()<<","
                           <<ui->tableActive->item(i, 1)->text()<<","
                           <<ui->tableActive->item(i, 4)->text()
+                          <<"\r\n";
+                    stream_70<<ui->tableActive->item(i, 2)->text()<<","
+                          <<ui->tableActive->item(i, 3)->text()<<","
+                          <<ui->tableActive->item(i, 1)->text()<<","
+                          <<QString::number(summa_person_70, 'f', 2)
+                          <<"\r\n";
+                    stream_30<<ui->tableActive->item(i, 2)->text()<<","
+                          <<ui->tableActive->item(i, 3)->text()<<","
+                          <<ui->tableActive->item(i, 1)->text()<<","
+                          <<QString::number(summa_person_30, 'f', 2)
                           <<"\r\n";
                     count_record++;
                     summa+=ui->tableActive->item(i, 4)->text().toDouble();
@@ -497,6 +567,8 @@ void MainForm::on_action_export_triggered()
 
                 }
             }
+            f_70.close();
+            f_30.close();
 
             query.clear();
             query_string = "UPDATE archiv "
@@ -522,14 +594,48 @@ void MainForm::on_action_export_triggered()
             int id_archiv = query.value(0).toInt();
             qDebug()<<id_archiv;
 
+            QString filename_70 = filename;
+            QString filename_30 = filename;
+            int index = filename.lastIndexOf(".txt");
+            filename_70.insert(index, "_70");
+            filename_30.insert(index, "_30");
+            qDebug()<<filename<<filename_70<<filename_30;
+
+            QFile f_70(filename_70);
+            if (!f_70.open(QIODevice::WriteOnly))
+            {
+                QMessageBox::information(this, "Экспорт списка", "Не удаеться создать файл 70%!");
+            }
+            QFile f_30(filename_30);
+            if (!f_30.open(QIODevice::WriteOnly))
+            {
+                QMessageBox::information(this, "Экспорт списка", "Не удаеться создать файл 30%!");
+            }
+            QTextStream stream_70(&f_70);
+            QTextStream stream_30(&f_30);
+
             for (int i=0; i<ui->tableActive->rowCount(); i++)
             {
                 if (ui->tableActive->item(i, 0)->checkState()==Qt::Checked)
                 {
+                    double summa_person = ui->tableActive->item(i, 4)->text().toDouble();
+                    double summa_person_70 = summa_person * 0.7; //70%
+                    double summa_person_30 = summa_person - summa_person_70; //30%
+
                     stream<<ui->tableActive->item(i, 2)->text()<<","
                           <<ui->tableActive->item(i, 3)->text()<<","
                           <<ui->tableActive->item(i, 1)->text()<<","
                           <<ui->tableActive->item(i, 4)->text()
+                          <<"\r\n";
+                    stream_70<<ui->tableActive->item(i, 2)->text()<<","
+                          <<ui->tableActive->item(i, 3)->text()<<","
+                          <<ui->tableActive->item(i, 1)->text()<<","
+                          <<QString::number(summa_person_70, 'f', 2)
+                          <<"\r\n";
+                    stream_30<<ui->tableActive->item(i, 2)->text()<<","
+                          <<ui->tableActive->item(i, 3)->text()<<","
+                          <<ui->tableActive->item(i, 1)->text()<<","
+                          <<QString::number(summa_person_30, 'f', 2)
                           <<"\r\n";
                     count_record++;
                     summa+=ui->tableActive->item(i, 4)->text().toDouble();
@@ -552,6 +658,8 @@ void MainForm::on_action_export_triggered()
 
                 }
             }
+            f_70.close();
+            f_30.close();
 
             query.clear();
             query_string = "UPDATE archiv "
@@ -902,11 +1010,11 @@ void MainForm::on_lineEdit_search_textChanged(const QString &arg1)
         for(int i=0; i<ui->tableActive->rowCount(); i++)
         {
             //qDebug()<<ui->tableActive->item(i, 1)->text();
-            if(ui->tableActive->item(i, 1)->text().indexOf(search_text, 0, Qt::CaseInsensitive)!=-1)
+            if(ui->tableActive->item(i, 1)->text().indexOf(search_text, 0, Qt::CaseInsensitive)==0)
             {
                 //qDebug()<<"Yes:"<<i;
                 ui->tableActive->selectRow(i);
-                break;
+                //break;
             }
         }
     }

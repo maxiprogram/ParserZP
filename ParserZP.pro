@@ -3,6 +3,11 @@
 # Project created by QtCreator 2015-04-08T15:22:10
 #
 #-------------------------------------------------
+VERSION = 1.0.7
+QMAKE_TARGET_COMPANY = maxiprogram@gmail.com
+QMAKE_TARGET_PRODUCT = ParserZP
+QMAKE_TARGET_DESCRIPTION = ParserZP
+QMAKE_TARGET_COPYRIGHT = maxiprogram@gmail.com
 
 QT       += core gui sql
 
