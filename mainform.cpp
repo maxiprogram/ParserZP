@@ -12,12 +12,14 @@ MainForm::MainForm(QWidget *parent) :
     bank_form = new BankForm(this);
     persona_form = new PersonForm(this);
     insert_form = new InsertActiveForm(this);
+    this->payListBelarusbank = new PayListBelarusbank(this);
 
     insert_form->connect(insert_form, SIGNAL(ADD_RECORD(QString,QString,QString)), this, SLOT(on_add_record(QString,QString,QString)));
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QODBC");
-    //qDebug()<<db.drivers();
+    qDebug()<<db.drivers();
     db.setDatabaseName("ParserZP");
+    //db.setDatabaseName("Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=D:\\Constantine\\MyProject\\Release\\ParserZP\\ParserZP-master\\db\\database.mdb;Uid=;Pwd=;");
     //qDebug()<<db.open();
     if (!db.open())
         QMessageBox::warning(this, "Ошибка подключения", db.lastError().text());
@@ -265,13 +267,16 @@ void MainForm::on_action_import_triggered()
             int flag = 0;
             for(int i=0; i<id_schet.size(); i++)
             {
-                dop_query.exec("SELECT id, summa FROM archiv_data WHERE id_schet="+QString::number(id_schet.at(i))+";");
+                QString query_string = "SELECT archiv_data.id, archiv_data.summa, schet.id_bank FROM schet "
+                        "INNER JOIN archiv_data on archiv_data.id_schet=schet.id "
+                        "WHERE schet.id="+QString::number(id_schet.at(i))+" ORDER BY archiv_data.id;";
+                dop_query.exec(query_string);
                 dop_query.first();
                 if (dop_query.isValid())
                 {
-                    flag = i+1;
                     do
                     {
+                        flag = dop_query.value(2).toInt()-1;
                         summa_oplat+=dop_query.value(1).toDouble();
                     }while(dop_query.next());
                 }
@@ -359,6 +364,9 @@ void MainForm::on_action_export_triggered()
         case 1:
         {
             str = "БеларусБанк.txt";
+            this->payListBelarusbank->init();
+            if(this->payListBelarusbank->exec() == QDialog::Rejected)
+                return;
             break;
         }
         case 2:
@@ -394,6 +402,8 @@ void MainForm::on_action_export_triggered()
     QTextStream stream(&f);
     int count_record = 0;
     double summa = 0;
+    double summa_70 = 0;
+    double summa_30 = 0;
     switch(for_bank)
     {
         case 1:
@@ -431,6 +441,9 @@ void MainForm::on_action_export_triggered()
             QTextStream stream_70(&f_70);
             QTextStream stream_30(&f_30);
 
+            QStringList delimiter;
+            QStringList delimiter_70;
+            QStringList delimiter_30;
             for (int i=0; i<ui->tableActive->rowCount(); i++)
             {
                 if (ui->tableActive->item(i, 0)->checkState()==Qt::Checked)
@@ -439,23 +452,24 @@ void MainForm::on_action_export_triggered()
                     double summa_person_70 = summa_person * 0.7; //70%
                     double summa_person_30 = summa_person - summa_person_70; //30%
 
-                    stream<<ui->tableActive->item(i, 2)->text()<<" "
+                    delimiter.append(ui->tableActive->item(i,3)->text()+";"+
+                                     ui->tableActive->item(i,4)->text()+";"+
+                                     ui->tableActive->item(i,1)->text());
+                    delimiter_70.append(ui->tableActive->item(i,3)->text()+";"+
+                                     QString::number(summa_person_70, 'f', 2)+";"+
+                                     ui->tableActive->item(i,1)->text());
+                    delimiter_30.append(ui->tableActive->item(i,3)->text()+";"+
+                                     QString::number(summa_person_30, 'f', 2)+";"+
+                                     ui->tableActive->item(i,1)->text());
+                    /*stream<<ui->tableActive->item(i, 2)->text()<<" "
                           <<ui->tableActive->item(i, 3)->text()<<" "
                           <<ui->tableActive->item(i, 4)->text()<<" "
                           <<ui->tableActive->item(i, 1)->text()
-                          <<"\r\n";
-                    stream_70<<ui->tableActive->item(i, 2)->text()<<" "
-                          <<ui->tableActive->item(i, 3)->text()<<" "
-                          <<QString::number(summa_person_70, 'f', 2)<<" "
-                          <<ui->tableActive->item(i, 1)->text()
-                          <<"\r\n";
-                    stream_30<<ui->tableActive->item(i, 2)->text()<<" "
-                          <<ui->tableActive->item(i, 3)->text()<<" "
-                          <<QString::number(summa_person_30, 'f', 2)<<" "
-                          <<ui->tableActive->item(i, 1)->text()
-                          <<"\r\n";
+                          <<"\r\n";*/              
                     count_record++;
                     summa+=ui->tableActive->item(i, 4)->text().toDouble();
+                    summa_70 += summa_person_70;
+                    summa_30 += summa_person_30;
 
                     query_string = "SELECT id FROM schet WHERE kod='"+
                             ui->tableActive->item(i, 2)->text()+
@@ -464,7 +478,8 @@ void MainForm::on_action_export_triggered()
                     query.clear();
                     if (!query.exec(query_string))
                         qDebug()<<query.lastError().text();
-                    query.first();
+
+                    if(query.first()) {
                     int id_schet = query.value(0).toInt();
                     query.clear();
                     query_string = "INSERT INTO archiv_data (id_archiv, id_schet, summa) "
@@ -472,9 +487,80 @@ void MainForm::on_action_export_triggered()
                     qDebug()<<query_string;
                     if (!query.exec(query_string))
                         qDebug()<<query.lastError().text();
+                    }else
+                    {
+                        QString message = "Не найден соответствующий лицевой счет в БД для '"+ui->tableActive->item(i,1)->text()+"'!";
+                        QMessageBox::critical(0, "Ошибка", message, "OK");
+                    }
 
                 }
             }
+
+            /*----------------------------------------------*/
+            QSqlQuery queryPayListBelarusbank(QSqlDatabase::database());
+            queryPayListBelarusbank.exec("SELECT * FROM PayListBelarusbank");
+            queryPayListBelarusbank.next();
+            stream<<"<HEADER>"<<"\r\n";
+            stream<<"<NSP>"<<queryPayListBelarusbank.value("NSP").toString()<<"\r\n";
+            stream<<"<DSP>"<<QDate::currentDate().toString("dd.MM.yyyy")<<"\r\n";
+            stream<<"<NOTD>"<<queryPayListBelarusbank.value("NOTD").toString()<<"\r\n";
+            stream<<"<NFIL>"<<queryPayListBelarusbank.value("NFIL").toString()<<"\r\n";
+            stream<<"<ACC>"<<queryPayListBelarusbank.value("ACC").toString()<<"\r\n";
+            stream<<"<FISP>"<<queryPayListBelarusbank.value("FISP").toString()<<"\r\n";
+            stream<<"<TOTAL_P>"<<count_record<<"\r\n";
+            stream<<"<TOTAL_S>"<<QString::number(summa, 'f', 2)<<"\r\n";
+            stream<<"<NZP>"<<queryPayListBelarusbank.value("NZP").toString()<<"\r\n";
+            stream<<"<NPP>"<<queryPayListBelarusbank.value("NPP").toString()<<"\r\n";
+            stream<<"<DPP>"<<QDate::currentDate().toString("dd.MM.yyyy")<<"\r\n";
+            stream<<"<VSP>"<<"K"<<"\r\n";
+            stream<<"<CURRENCY>"<<"BYN"<<"\r\n";
+            stream<<"<CONTRACT>"<<queryPayListBelarusbank.value("CONTRACT").toString()<<"\r\n";
+            stream<<"<DELIMITER>"<<";"<<"\r\n";
+            foreach(QString employe,delimiter)
+                stream<<employe<<"\r\n";
+            stream<<"<EOD>"<<"\r\n";
+
+            stream_70<<"<HEADER>"<<"\r\n";
+            stream_70<<"<NSP>"<<queryPayListBelarusbank.value("NSP").toString()<<"\r\n";
+            stream_70<<"<DSP>"<<QDate::currentDate().toString("dd.MM.yyyy")<<"\r\n";
+            stream_70<<"<NOTD>"<<queryPayListBelarusbank.value("NOTD").toString()<<"\r\n";
+            stream_70<<"<NFIL>"<<queryPayListBelarusbank.value("NFIL").toString()<<"\r\n";
+            stream_70<<"<ACC>"<<queryPayListBelarusbank.value("ACC").toString()<<"\r\n";
+            stream_70<<"<FISP>"<<queryPayListBelarusbank.value("FISP").toString()<<"\r\n";
+            stream_70<<"<TOTAL_P>"<<count_record<<"\r\n";
+            stream_70<<"<TOTAL_S>"<<QString::number(summa_70, 'f', 2)<<"\r\n";
+            stream_70<<"<NZP>"<<queryPayListBelarusbank.value("NZP").toString()<<"\r\n";
+            stream_70<<"<NPP>"<<queryPayListBelarusbank.value("NPP").toString()<<"\r\n";
+            stream_70<<"<DPP>"<<QDate::currentDate().toString("dd.MM.yyyy")<<"\r\n";
+            stream_70<<"<VSP>"<<"K"<<"\r\n";
+            stream_70<<"<CURRENCY>"<<"BYN"<<"\r\n";
+            stream_70<<"<CONTRACT>"<<queryPayListBelarusbank.value("CONTRACT").toString()<<"\r\n";
+            stream_70<<"<DELIMITER>"<<";"<<"\r\n";
+            foreach(QString employe_70,delimiter_70)
+                stream_70<<employe_70<<"\r\n";
+            stream_70<<"<EOD>"<<"\r\n";
+
+            stream_30<<"<HEADER>"<<"\r\n";
+            stream_30<<"<NSP>"<<queryPayListBelarusbank.value("NSP").toString()<<"\r\n";
+            stream_30<<"<DSP>"<<QDate::currentDate().toString("dd.MM.yyyy")<<"\r\n";
+            stream_30<<"<NOTD>"<<queryPayListBelarusbank.value("NOTD").toString()<<"\r\n";
+            stream_30<<"<NFIL>"<<queryPayListBelarusbank.value("NFIL").toString()<<"\r\n";
+            stream_30<<"<ACC>"<<queryPayListBelarusbank.value("ACC").toString()<<"\r\n";
+            stream_30<<"<FISP>"<<queryPayListBelarusbank.value("FISP").toString()<<"\r\n";
+            stream_30<<"<TOTAL_P>"<<count_record<<"\r\n";
+            stream_30<<"<TOTAL_S>"<<QString::number(summa_30, 'f', 2)<<"\r\n";
+            stream_30<<"<NZP>"<<queryPayListBelarusbank.value("NZP").toString()<<"\r\n";
+            stream_30<<"<NPP>"<<queryPayListBelarusbank.value("NPP").toString()<<"\r\n";
+            stream_30<<"<DPP>"<<QDate::currentDate().toString("dd.MM.yyyy")<<"\r\n";
+            stream_30<<"<VSP>"<<"K"<<"\r\n";
+            stream_30<<"<CURRENCY>"<<"BYN"<<"\r\n";
+            stream_30<<"<CONTRACT>"<<queryPayListBelarusbank.value("CONTRACT").toString()<<"\r\n";
+            stream_30<<"<DELIMITER>"<<";"<<"\r\n";
+            foreach(QString employe_30,delimiter_30)
+                stream_30<<employe_30<<"\r\n";
+            stream_30<<"<EOD>"<<"\r\n";
+
+            /*----------------------------------------------*/
             f_70.close();
             f_30.close();
 
@@ -1010,12 +1096,27 @@ void MainForm::on_lineEdit_search_textChanged(const QString &arg1)
         for(int i=0; i<ui->tableActive->rowCount(); i++)
         {
             //qDebug()<<ui->tableActive->item(i, 1)->text();
-            if(ui->tableActive->item(i, 1)->text().indexOf(search_text, 0, Qt::CaseInsensitive)==0)
+            if(ui->tableActive->item(i, 1)->text().indexOf(search_text, 0, Qt::CaseInsensitive)!=-1)
             {
                 //qDebug()<<"Yes:"<<i;
                 ui->tableActive->selectRow(i);
-                //break;
+                break;
             }
         }
+    }
+}
+
+void MainForm::on_tableActive_cellChanged(int row, int column)
+{
+    if(column==4) {
+        QString summa = ui->tableActive->item(row, column)->text();
+        summa = summa.replace(",", ".");
+        /*QRegExp reg("\\d*\\.\\d+");
+        if(reg.indexIn(summa)!=-1)
+            summa = reg.cap();
+        else
+            summa = "0.0";*/
+
+        ui->tableActive->item(row, column)->setText(summa);
     }
 }

@@ -51,6 +51,7 @@ void InsertActiveForm::Init()
         }while(query.next());
     }
     ui->lineEdit->setText("");
+    ui->lineEdit_search->setText("");
 }
 
 void InsertActiveForm::on_pushButton_2_clicked()
@@ -69,4 +70,49 @@ void InsertActiveForm::on_pushButton_clicked()
     }
     emit ADD_RECORD(ui->comboBox->currentData().toString(), ui->comboBox_2->currentData().toString(), ui->lineEdit->text());
     this->close();
+}
+
+
+
+void InsertActiveForm::on_lineEdit_search_textChanged(const QString &arg1)
+{
+    if(arg1.isEmpty())
+    {
+        QString query_string = "SELECT id, fio FROM persona ORDER BY fio ASC;";
+        QSqlQuery query(QSqlDatabase::database());
+        if (!query.exec(query_string))
+        {
+            QMessageBox::warning(this, "Ошибка запроса", query.lastError().text());
+            return;
+        }
+        ui->comboBox->clear();
+        if (query.isSelect())
+            query.first();
+        if (query.isValid())
+        {
+            do
+            {
+                ui->comboBox->addItem(query.value(1).toString(), query.value(0));
+            }while(query.next());
+        }
+    }else
+    {
+        QString query_string = "SELECT id, fio FROM persona WHERE fio like '"+arg1+"%' ORDER BY fio ASC;";
+        QSqlQuery query(QSqlDatabase::database());
+        if (!query.exec(query_string))
+        {
+            QMessageBox::warning(this, "Ошибка запроса", query.lastError().text());
+            return;
+        }
+        ui->comboBox->clear();
+        if (query.isSelect())
+            query.first();
+        if (query.isValid())
+        {
+            do
+            {
+                ui->comboBox->addItem(query.value(1).toString(), query.value(0));
+            }while(query.next());
+        }
+    }
 }

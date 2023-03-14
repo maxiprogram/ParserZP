@@ -25,6 +25,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_lineEdit_search_textChanged(const QString &arg1);
+
 signals:
     void ADD_RECORD(QString id_persona, QString id_bank, QString summa);
 

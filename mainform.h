@@ -16,6 +16,7 @@
 #include "minimalzpform.h"
 #include "aboutform.h"
 #include "parser.h"
+#include "paylistbelarusbank.h"
 
 namespace Ui {
 class MainForm;
@@ -67,11 +68,14 @@ private slots:
 
     void on_lineEdit_search_textChanged(const QString &arg1);
 
+    void on_tableActive_cellChanged(int row, int column);
+
 private:
     Ui::MainForm *ui;
     BankForm* bank_form;
     PersonForm* persona_form;
     InsertActiveForm* insert_form;
+    PayListBelarusbank *payListBelarusbank;
     Parser* parser;
     int for_bank;
     int count_rec, count_rec_sel;

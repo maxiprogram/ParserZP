@@ -36,6 +36,9 @@
       </widget>
      </item>
      <item>
+      <widget class="QLineEdit" name="lineEdit_search"/>
+     </item>
+     <item>
       <widget class="QComboBox" name="comboBox"/>
      </item>
     </layout>

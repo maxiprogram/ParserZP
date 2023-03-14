@@ -3,11 +3,6 @@
 # Project created by QtCreator 2015-04-08T15:22:10
 #
 #-------------------------------------------------
-VERSION = 1.0.7
-QMAKE_TARGET_COMPANY = maxiprogram@gmail.com
-QMAKE_TARGET_PRODUCT = ParserZP
-QMAKE_TARGET_DESCRIPTION = ParserZP
-QMAKE_TARGET_COPYRIGHT = maxiprogram@gmail.com
 
 QT       += core gui sql
 
@@ -25,7 +20,8 @@ SOURCES += main.cpp\
     selectimportform.cpp \
     aboutform.cpp \
     insertactiveform.cpp \
-    minimalzpform.cpp
+    minimalzpform.cpp \
+    paylistbelarusbank.cpp
 
 HEADERS  += mainform.h \
     parser.h \
@@ -34,7 +30,8 @@ HEADERS  += mainform.h \
     selectimportform.h \
     aboutform.h \
     insertactiveform.h \
-    minimalzpform.h
+    minimalzpform.h \
+    paylistbelarusbank.h
 
 FORMS    += mainform.ui \
     bankform.ui \
@@ -43,7 +40,8 @@ FORMS    += mainform.ui \
     aboutform.ui \
     insertactiveform.ui \
     insertactiveform.ui \
-    minimalzpform.ui
+    minimalzpform.ui \
+    paylistbelarusbank.ui
 
 RESOURCES += \
     resources.qrc

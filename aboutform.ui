@@ -36,7 +36,7 @@
       </font>
      </property>
      <property name="text">
-      <string>ParserZP v1.0.7</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ParserZP v1.0.9&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
